@@ -1,0 +1,11 @@
+# SE373 - BTVN#3: Agent Fundamentals & Flight Booking Agent
+# Core dependencies
+pydantic>=2.7.0
+python-dotenv>=1.0.0
+tabulate>=0.9.0
+pytest>=8.0.0
+
+# LLM Frameworks
+langchain>=0.3.0
+langgraph>=0.2.0
+langchain-core>=0.3.0
