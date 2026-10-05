@@ -17,7 +17,7 @@ class ExecutionBudget:
     def __init__(
         self,
         max_steps: int = 10,
-        max_tokens: int = 15000,
+        max_tokens: int = 50000,
         timeout_seconds: float = 30.0,
         cost_limit_vnd: int = 2_500_000
     ):
