@@ -234,4 +234,7 @@ env/
 .idea/
 ~$*.docx
 ~$*.doc
-*_UPDATED.docx
+*.docx
+
+# Scripts
+scripts/
