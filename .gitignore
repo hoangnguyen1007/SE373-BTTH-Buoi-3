@@ -219,7 +219,7 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# Environments and API Keys (Slide 01 Security Principle)
+# Environments
 .env
 .env.*
 !.env.example
