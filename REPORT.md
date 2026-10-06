@@ -76,6 +76,10 @@ Khi hệ thống cần phê duyệt hoặc gặp sự cố bế tắc, lớp `Hu
 ### 3.1. Mẫu 1: ReAct Agent (Slide 18-21, 29)
 Được xây dựng bằng `create_agent` từ thư viện `langchain.agents` kết hợp `ModelCallLimitMiddleware` và `HarnessMiddleware`. Agent vận hành theo chu trình: *Suy luận (Thought) $\rightarrow$ Hành động (Action) $\rightarrow$ Quan sát (Observation)*. Ưu điểm là độ linh hoạt cao khi chưa biết trước số bước, nhưng tốn nhiều token do phải nạp lại toàn bộ lịch sử qua mỗi vòng lặp.
 
+```
+[HÌNH 3A: CHỤP ẢNH MÀN HÌNH CHẠY 'python main.py --agent react' - MINH CHỨNG TRACE LOG REACT AGENT]
+```
+
 ### 3.2. Mẫu 2: Plan-then-Execute Agent (Slide 22, 23)
 Chia làm 3 giai đoạn độc lập:
 1. *Planner:* Sinh trọn vẹn kế hoạch tuần tự từ đầu.
@@ -84,11 +88,15 @@ Chia làm 3 giai đoạn độc lập:
 
 *Ưu điểm:* Tiết kiệm token và kiểm soát ngân sách trước khi chạy; *nhược điểm:* kế hoạch tĩnh bị giòn (brittle) — nếu bước giữa thất bại (ví dụ chuyến bay hết ghế), hệ thống không thể tự phục hồi.
 
+```
+[HÌNH 3B: CHỤP ẢNH MÀN HÌNH CHẠY 'python main.py --agent plan' - MINH CHỨNG TRACE LOG PLAN-THEN-EXECUTE AGENT]
+```
+
 ### 3.3. Mẫu 3: Mẫu Lai (Hybrid Agent - ReAct + Plan) (Slide 24, 26)
 Tích hợp nguyên lý `TodoListMiddleware` từ `langchain.agents.middleware`. Agent khởi tạo danh sách công việc dự kiến, thực thi từng bước và đánh giá hàm `is_observation_drifted()`. Khi quan sát thực tế thay đổi đáng kể so với kỳ vọng (chuyến bay ưu tiên 1 hết chỗ), Agent lập tức kích hoạt `replan_on_drift()` để tự động lập lại kế hoạch và chuyển hướng sang chuyến bay thay thế khả thi.
 
 ```
-[HÌNH 3: CHỤP ẢNH MÀN HÌNH CHẠY 'python main.py --agent react' - MINH CHỨNG NHẬT KÝ TRACE LOG TỪNG VÒNG]
+[HÌNH 3C: CHỤP ẢNH MÀN HÌNH CHẠY 'python main.py --agent hybrid' - MINH CHỨNG TRACE LOG HYBRID AGENT (TODO ROADMAP)]
 ```
 
 ---

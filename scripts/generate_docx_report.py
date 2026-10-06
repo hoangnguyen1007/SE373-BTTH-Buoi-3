@@ -176,6 +176,11 @@ def create_report():
         "Agent vận hành theo chu trình: Suy luận (Thought) -> Hành động (Action) -> Quan sát (Observation). "
         "Ưu điểm là độ linh hoạt cao khi chưa biết trước số bước, nhưng tốn nhiều token do phải nạp lại toàn bộ lịch sử qua mỗi vòng lặp."
     )
+    p_img3a = doc.add_paragraph()
+    p_img3a.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    r_img3a = p_img3a.add_run("[HÌNH 3A: CHỤP ẢNH MÀN HÌNH CHẠY 'python main.py --agent react' - MINH CHỨNG TRACE LOG REACT AGENT]")
+    r_img3a.bold = True
+    r_img3a.font.color.rgb = RGBColor(180, 50, 50)
 
     doc.add_heading("3.2. Mẫu 2: Plan-then-Execute Agent (Slide 22, 23)", level=2)
     doc.add_paragraph(
@@ -183,6 +188,11 @@ def create_report():
         "(3) Executor thực thi tuần tự các bước. Ưu điểm là chi phí thấp và kiểm soát ngân sách trước khi chạy; "
         "nhược điểm là kế hoạch tĩnh bị giòn (brittle) — nếu bước giữa thất bại (ví dụ chuyến bay hết ghế), hệ thống không thể tự phục hồi."
     )
+    p_img3b = doc.add_paragraph()
+    p_img3b.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    r_img3b = p_img3b.add_run("[HÌNH 3B: CHỤP ẢNH MÀN HÌNH CHẠY 'python main.py --agent plan' - MINH CHỨNG TRACE LOG PLAN-THEN-EXECUTE AGENT]")
+    r_img3b.bold = True
+    r_img3b.font.color.rgb = RGBColor(180, 50, 50)
 
     doc.add_heading("3.3. Mẫu 3: Mẫu Lai (Hybrid Agent - ReAct + Plan) (Slide 24, 26)", level=2)
     doc.add_paragraph(
@@ -190,12 +200,11 @@ def create_report():
         "thực thi từng bước và đánh giá hàm is_observation_drifted(). Khi quan sát thực tế thay đổi đáng kể so với kỳ vọng "
         "(ví dụ chuyến bay ưu tiên 1 hết chỗ), Agent lập tức kích hoạt replan_on_drift() để tự động lập lại kế hoạch và chuyển hướng sang chuyến bay thay thế khả thi."
     )
-
-    p_img3 = doc.add_paragraph()
-    p_img3.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r_img3 = p_img3.add_run("[HÌNH 3: CHỤP ẢNH MÀN HÌNH CHẠY 'python main.py --agent react' - MINH CHỨNG NHẬT KÝ TRACE LOG TỪNG VÒNG]")
-    r_img3.bold = True
-    r_img3.font.color.rgb = RGBColor(180, 50, 50)
+    p_img3c = doc.add_paragraph()
+    p_img3c.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    r_img3c = p_img3c.add_run("[HÌNH 3C: CHỤP ẢNH MÀN HÌNH CHẠY 'python main.py --agent hybrid' - MINH CHỨNG TRACE LOG HYBRID AGENT (TODO ROADMAP)]")
+    r_img3c.bold = True
+    r_img3c.font.color.rgb = RGBColor(180, 50, 50)
 
     # SECTION 4
     h4 = doc.add_heading("4. ĐÁNH GIÁ SO SÁNH HIỆU QUẢ CỦA 3 MẪU THIẾT KẾ (SLIDE 31)", level=1)
@@ -280,10 +289,14 @@ def create_report():
     r_img5.bold = True
     r_img5.font.color.rgb = RGBColor(180, 50, 50)
 
-    # Output path
     output_path = os.path.join(os.path.abspath("."), "BAO_CAO_BTVN3.docx")
-    doc.save(output_path)
-    print(f"Report DOCX created successfully at: {output_path}")
+    try:
+        doc.save(output_path)
+        print(f"Report DOCX created successfully at: {output_path}")
+    except PermissionError:
+        alt_path = os.path.join(os.path.abspath("."), "BAO_CAO_BTVN3_UPDATED.docx")
+        doc.save(alt_path)
+        print(f"BAO_CAO_BTVN3.docx is locked in Word. Saved to: {alt_path}")
 
 
 if __name__ == "__main__":

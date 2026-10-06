@@ -138,12 +138,21 @@ class MockFlightChatModel(BaseChatModel):
 
 
 def get_chat_model(constraints: FlightConstraints) -> BaseChatModel:
-    """Return live LLM if OPENAI_API_KEY is configured, otherwise fallback to offline mock model."""
-    api_key = os.environ.get("OPENAI_API_KEY")
-    if api_key and not api_key.startswith("your_"):
+    """Return live LLM if API key is configured, otherwise fallback to offline mock model."""
+    gemini_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+    if gemini_key and not gemini_key.startswith("your_"):
+        try:
+            from langchain_google_genai import ChatGoogleGenerativeAI
+            model_name = os.environ.get("GEMINI_MODEL", "gemini-flash-latest")
+            return ChatGoogleGenerativeAI(model=model_name, google_api_key=gemini_key)
+        except Exception:
+            pass
+
+    openai_key = os.environ.get("OPENAI_API_KEY")
+    if openai_key and not openai_key.startswith("your_"):
         try:
             from langchain_openai import ChatOpenAI
-            return ChatOpenAI(model=os.environ.get("OPENAI_MODEL", "gpt-4o-mini"), api_key=api_key)
+            return ChatOpenAI(model=os.environ.get("OPENAI_MODEL", "gpt-4o-mini"), api_key=openai_key)
         except Exception:
             pass
 

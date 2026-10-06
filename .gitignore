@@ -229,6 +229,9 @@ venv/
 .venv/
 env/
 
-# IDE files
+# IDE and Office temporary files
 .vscode/
 .idea/
+~$*.docx
+~$*.doc
+*_UPDATED.docx
