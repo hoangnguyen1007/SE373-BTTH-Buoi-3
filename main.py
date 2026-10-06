@@ -1,11 +1,3 @@
-"""
-SE373 - BTVN#3: Flight Booking Agent & Harness System.
-File khởi chạy chính (Unified CLI Runner).
-Cho phép:
-1. Chạy đánh giá so sánh thực nghiệm 3 mẫu thiết kế Agent (--benchmark).
-2. Chạy tương tác từng mẫu Agent cụ thể (--agent react|plan|hybrid).
-"""
-import sys
 import argparse
 from src.domain.models import FlightConstraints
 from src.tools.flight_tools import MockFlightDatabase
@@ -17,93 +9,62 @@ from src.benchmark.evaluator import AgentBenchmarkRunner
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="SE373 Buổi 03: Flight Booking Agent với 3 mẫu thiết kế và Harness 4 lớp."
+        description="SE373 Flight Booking Agent & Harness System."
     )
     parser.add_argument(
         "--benchmark",
         action="store_true",
-        help="Chạy toàn bộ 5 kịch bản thử nghiệm so sánh 3 mẫu Agent (Yêu cầu 03 BTVN#3)."
+        help="Run comprehensive benchmark comparing the 3 agent patterns across 5 scenarios.",
     )
     parser.add_argument(
         "--agent",
         choices=["react", "plan", "hybrid"],
         default="hybrid",
-        help="Chọn loại Agent để chạy tương tác (mặc định: hybrid)."
+        help="Choose agent pattern for interactive run (default: hybrid).",
     )
-    parser.add_argument(
-        "--origin",
-        default="SGN",
-        help="Điểm đi (mặc định: SGN)."
-    )
-    parser.add_argument(
-        "--destination",
-        default="DAD",
-        help="Điểm đến (mặc định: DAD)."
-    )
-    parser.add_argument(
-        "--date",
-        default="2026-10-07",
-        help="Ngày khởi hành (mặc định: 2026-10-07)."
-    )
-    parser.add_argument(
-        "--max-price",
-        type=int,
-        default=2000000,
-        help="Ngân sách tối đa VNĐ (mặc định: 2.000.000)."
-    )
-    parser.add_argument(
-        "--depart-before",
-        default="12:00",
-        help="Giờ khởi hành trước mốc này (mặc định: 12:00)."
-    )
+    parser.add_argument("--origin", default="SGN", help="Origin airport code.")
+    parser.add_argument("--destination", default="DAD", help="Destination airport code.")
+    parser.add_argument("--date", default="2026-10-07", help="Flight departure date (YYYY-MM-DD).")
+    parser.add_argument("--max-price", type=int, default=2000000, help="Max budget in VND.")
+    parser.add_argument("--depart-before", default="12:00", help="Departure time ceiling (HH:MM).")
     parser.add_argument(
         "--require-approval",
         action="store_true",
-        help="Yêu cầu người duyệt bấm xác nhận khi có hành động vượt quyền (Slide 41)."
+        help="Enforce human approval halt on high-value or non-refundable tickets (Slide 41).",
     )
     return parser.parse_args()
-
-
-def safe_print(text: str):
-    """In an toàn không phụ thuộc bảng mã terminal."""
-    try:
-        print(text)
-    except UnicodeEncodeError:
-        import sys
-        sys.stdout.buffer.write(text.encode("utf-8", errors="replace") + b"\n")
 
 
 def main():
     args = parse_args()
 
     if args.benchmark:
-        safe_print("\n[+] Bat dau chay Benchmark so sanh thuc nghiem 3 mau thiet ke Agent...")
+        print("\n[+] Starting Benchmark across ReAct, Plan-then-Execute, and Hybrid agents...")
         runner = AgentBenchmarkRunner()
         report = runner.run_benchmark()
         report.print_markdown_table()
-        safe_print("[+] Hoan thanh Benchmark thanh cong!\n")
+        print("[+] Benchmark completed successfully.\n")
         return
 
-    # Chạy tương tác một Agent
     constraints = FlightConstraints(
         origin=args.origin,
         destination=args.destination,
         date=args.date,
         depart_before=args.depart_before,
-        max_price=args.max_price
+        max_price=args.max_price,
     )
     db = MockFlightDatabase()
 
     prompt = (
-        f"Đặt giúp tôi 1 vé máy bay từ {args.origin} đến {args.destination} "
-        f"vào ngày {args.date}, trước {args.depart_before}, ngân sách tối đa {args.max_price:,} VNĐ."
+        f"Book a flight from {args.origin} to {args.destination} on {args.date} "
+        f"departing before {args.depart_before} within budget {args.max_price:,} VND."
     )
 
-    safe_print(f"\n======================================================================")
-    safe_print(f"KHOI TAO HE THONG AGENT DAT VE MAY BAY: {args.agent.upper()}")
-    safe_print(f"Yeu cau: {prompt}")
-    safe_print(f"Rang buoc: Origin={constraints.origin}, Dest={constraints.destination}, Date={constraints.date}, Before={constraints.depart_before}, MaxPrice={constraints.max_price:,}d")
-    safe_print(f"======================================================================\n")
+    print("\n" + "=" * 70)
+    print(f"INITIALIZING FLIGHT AGENT: {args.agent.upper()}")
+    print(f"Goal: {prompt}")
+    print(f"Constraints: Origin={constraints.origin}, Dest={constraints.destination}, Date={constraints.date}, Before={constraints.depart_before}, MaxPrice={constraints.max_price:,} VND")
+    print("=" * 70 + "\n")
 
     auto_approve = not args.require_approval
 

@@ -1,6 +1,3 @@
-"""
-Tools package for Flight Booking Agent.
-"""
 from src.tools.flight_tools import (
     MockFlightDatabase,
     search_flights,
@@ -9,6 +6,7 @@ from src.tools.flight_tools import (
     pay,
     get_booking,
     get_default_database,
+    FLIGHT_TOOLS,
 )
 
 __all__ = [
@@ -19,4 +17,5 @@ __all__ = [
     "pay",
     "get_booking",
     "get_default_database",
+    "FLIGHT_TOOLS",
 ]
