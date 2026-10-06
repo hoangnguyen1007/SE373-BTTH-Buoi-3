@@ -14,9 +14,10 @@ class BenchmarkScenario(BaseModel):
     auto_approve_plan: bool = True
 
     def create_database(self) -> MockFlightDatabase:
-        db = MockFlightDatabase()
+        from src.tools.flight_tools import _GLOBAL_DB
+        _GLOBAL_DB.reset()
         if self.scenario_id == "SC2_OUT_OF_STOCK_DRIFT":
-            db.flights["VN124"] = Flight(
+            _GLOBAL_DB.flights["VN124"] = Flight(
                 flight_id="VN124",
                 origin="SGN",
                 destination="DAD",
@@ -26,8 +27,8 @@ class BenchmarkScenario(BaseModel):
                 refundable=True,
                 available_seats=["10A", "10B"],
             )
-            db.flights["VN122"].available_seats.clear()
-        return db
+            _GLOBAL_DB.flights["VN122"].available_seats.clear()
+        return _GLOBAL_DB
 
 
 def get_standard_scenarios() -> List[BenchmarkScenario]:
