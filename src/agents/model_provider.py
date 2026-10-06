@@ -75,46 +75,6 @@ class MockFlightChatModel(BaseChatModel):
             seats = content.get("available_seats", [])
             flight_id = content.get("flight", "")
             if not seats:
-                # Check if alternative flights exist from earlier search
-                search_tool = None
-                for m in tool_messages:
-                    try:
-                        parsed = json.loads(m.content) if isinstance(m.content, str) else m.content
-                        if "flights" in parsed:
-                            search_tool = parsed
-                            break
-                    except Exception:
-                        continue
-
-                checked = set()
-                for m in tool_messages:
-                    try:
-                        parsed = json.loads(m.content) if isinstance(m.content, str) else m.content
-                        if "flight" in parsed:
-                            checked.add(parsed.get("flight"))
-                    except Exception:
-                        continue
-
-                if search_tool:
-                    candidates = [
-                        f["flight"] for f in search_tool.get("flights", [])
-                        if f["flight"] not in checked
-                        and f.get("depart", "") < self.constraints.depart_before
-                        and f.get("price", 0) <= self.constraints.max_price
-                    ]
-                    if candidates:
-                        alt = candidates[0]
-                        return ChatResult(generations=[
-                            ChatGeneration(message=AIMessage(
-                                content=f"Flight {flight_id} has no seats. Checking alternative flight {alt}.",
-                                tool_calls=[{
-                                    "name": "check_seat",
-                                    "args": {"flight_id": alt},
-                                    "id": f"call_seat_{alt}",
-                                }]
-                            ))
-                        ])
-
                 return ChatResult(generations=[
                     ChatGeneration(message=AIMessage(content=f"Flight {flight_id} has no available seats."))
                 ])
@@ -178,13 +138,13 @@ class MockFlightChatModel(BaseChatModel):
 
 
 def get_chat_model(constraints: FlightConstraints) -> BaseChatModel:
-    """Return live LLM if API key is present, otherwise return MockFlightChatModel."""
+    """Return live LLM if OPENAI_API_KEY is configured, otherwise fallback to offline mock model."""
     api_key = os.environ.get("OPENAI_API_KEY")
-    if api_key and os.environ.get("RUN_MODE") == "live":
+    if api_key and not api_key.startswith("your_"):
         try:
             from langchain_openai import ChatOpenAI
-            return ChatOpenAI(model=os.environ.get("SE373_MODEL", "gpt-4o-mini"))
-        except ImportError:
+            return ChatOpenAI(model=os.environ.get("OPENAI_MODEL", "gpt-4o-mini"), api_key=api_key)
+        except Exception:
             pass
 
     return MockFlightChatModel(constraints=constraints)

@@ -2,7 +2,7 @@ import os
 import docx
 from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
+from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 
@@ -19,7 +19,7 @@ def set_cell_background(cell, hex_color):
 def create_report():
     doc = docx.Document()
 
-    # Set page margins (Normal: 1 inch = 2.54 cm)
+    # Set page margins (1 inch = 2.54 cm)
     for section in doc.sections:
         section.top_margin = Inches(1.0)
         section.bottom_margin = Inches(1.0)
@@ -42,11 +42,11 @@ def create_report():
     # Title
     p_title = doc.add_paragraph()
     p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p_title.paragraph_format.space_before = Pt(18)
-    p_title.paragraph_format.space_after = Pt(18)
+    p_title.paragraph_format.space_before = Pt(16)
+    p_title.paragraph_format.space_after = Pt(16)
     r_title = p_title.add_run("BÁO CÁO KỸ THUẬT BÀI TẬP THỰC HÀNH BUỔI 03 (BTVN#3)\nĐỀ TÀI: XÂY DỰNG FLIGHT BOOKING AGENT VỚI 3 MẪU THIẾT KẾ VÀ 4 LỚP HARNESS")
     r_title.bold = True
-    r_title.font.size = Pt(16)
+    r_title.font.size = Pt(15)
     r_title.font.color.rgb = RGBColor(16, 44, 87)
 
     # Meta
@@ -54,8 +54,8 @@ def create_report():
     p_meta.paragraph_format.space_after = Pt(14)
     r_meta = p_meta.add_run(
         "Môn học: SE373 - Kỹ thuật xây dựng hệ thống Agentic AI\n"
-        "Nguyên tắc cốt lõi: agent = model + harness (Model cấp năng lực, Harness cấp độ tin cậy)\n"
-        "Ngôn ngữ và Framework: Python 3.13, LangChain 1.4, LangGraph, Pydantic"
+        "Nguyên tắc cốt lõi: agent = model + harness (Model cấp năng lực suy luận, Harness cấp độ tin cậy và bảo vệ thực thi)\n"
+        "Công nghệ áp dụng: Python 3.13, LangChain 1.4, LangGraph, Pydantic 2.12"
     )
     r_meta.italic = True
     r_meta.font.size = Pt(11)
@@ -66,11 +66,12 @@ def create_report():
     h1 = doc.add_heading("1. MÔ TẢ BÀI TOÁN VÀ ĐẶC TẢ CÔNG CỤ (TOOLS SPECIFICATION)", level=1)
     h1.paragraph_format.space_before = Pt(14)
 
-    p = doc.add_paragraph()
-    p.add_run(
-        "Bài toán yêu cầu xây dựng hệ thống tác tử (Agent) hỗ trợ người dùng tìm kiếm và đặt vé máy bay theo ngôn ngữ tự nhiên. "
-        "Mô hình ngôn ngữ (LLM) đảm nhiệm việc phân tích ngữ nghĩa và sinh lời gọi công cụ, trong khi lớp điều khiển (Harness) "
-        "đảm bảo toàn bộ thao tác tuân thủ các ràng buộc nghiệp vụ, bảo vệ tài nguyên và xác thực kết quả khách quan."
+    p1 = doc.add_paragraph()
+    p1.add_run(
+        "Hệ thống tác tử (Agent) tiếp nhận yêu cầu đặt vé máy bay từ người dùng bằng ngôn ngữ tự nhiên. "
+        "Mô hình ngôn ngữ (LLM) đảm nhiệm việc phân tích ngữ nghĩa và sinh các lời gọi công cụ, "
+        "trong khi lớp điều khiển (Harness) đảm bảo toàn bộ thao tác tuân thủ các ràng buộc nghiệp vụ, "
+        "bảo vệ tài nguyên, kiểm soát quyền hạn và xác thực kết quả khách quan."
     )
 
     doc.add_heading("1.1. Bảng đặc tả 5 công cụ Mockup (@tool)", level=2)
@@ -80,7 +81,7 @@ def create_report():
     table1.alignment = WD_TABLE_ALIGNMENT.CENTER
     table1.autofit = False
 
-    headers = ["Tên công cụ", "Tham số đầu vào", "Cấu trúc dữ liệu trả về", "Cơ chế xử lý lỗi ngầm"]
+    headers = ["Tên công cụ", "Tham số đầu vào", "Cấu trúc dữ liệu trả về", "Cơ chế xử lý lỗi ngữ nghĩa"]
     col_widths = [Inches(1.3), Inches(1.5), Inches(1.8), Inches(1.9)]
 
     hdr_cells = table1.rows[0].cells
@@ -91,11 +92,11 @@ def create_report():
         hdr_cells[i].width = col_widths[i]
 
     tools_data = [
-        ("search_flights", "origin: str, destination: str, date: str", '{"status": "ok", "flights": [...]}', "Kiểm tra regex YYYY-MM-DD. Sai định dạng trả về invalid_param kèm hint (Slide 56)."),
+        ("search_flights", "origin: str, destination: str, date: str", '{"status": "ok", "flights": [...]}', "Kiểm tra định dạng regex YYYY-MM-DD. Nếu sai trả về invalid_param kèm gợi ý sửa lỗi (Slide 56)."),
         ("check_seat", "flight_id: str", '{"status": "ok", "available_seats": [...], "price": int}', "Nếu mã chuyến bay không tồn tại, trả về flight_not_found."),
-        ("book_seat", "flight_id: str, seat_number: str", '{"status": "held", "booking_code": str, ...}', "Kiểm tra tính khả dụng của ghế; cập nhật trạng thái giữ chỗ (held)."),
+        ("book_seat", "flight_id: str, seat_number: str", '{"status": "held", "booking_code": str, ...}', "Kiểm tra tính khả dụng của ghế; cập nhật trạng thái giữ chỗ (held) và cấp mã PNR."),
         ("pay", "booking_code: str, payment_method: str", '{"status": "paid", "booking_code": str}', "Xác nhận thanh toán; cập nhật paid=True và status=confirmed."),
-        ("get_booking", "booking_code: str", '{"status": str, "paid": bool, "price": int, ...}', "Truy vấn cơ sở dữ liệu phục vụ vị từ kiểm chứng máy móc (Slide 43).")
+        ("get_booking", "booking_code: str", '{"status": str, "paid": bool, "price": int, ...}', "Truy vấn cơ sở dữ liệu phục vụ vị từ kiểm chứng bằng code (Slide 43).")
     ]
 
     for row_data in tools_data:
@@ -104,36 +105,35 @@ def create_report():
             row.cells[i].text = val
             row.cells[i].width = col_widths[i]
 
-    # Callout image
-    p_img = doc.add_paragraph()
-    p_img.paragraph_format.space_before = Pt(8)
-    p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r_img = p_img.add_run("[HÌNH 1: CHỤP ẢNH MÀN HÌNH CHẠY 'python -m unittest tests/test_tools.py -v' - MINH CHỨNG 5/5 TESTS TOOLS PASS]")
-    r_img.bold = True
-    r_img.font.color.rgb = RGBColor(180, 50, 50)
+    p_img1 = doc.add_paragraph()
+    p_img1.paragraph_format.space_before = Pt(8)
+    p_img1.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    r_img1 = p_img1.add_run("[HÌNH 1: CHỤP ẢNH MÀN HÌNH CHẠY 'python -m unittest tests/test_tools.py -v' - MINH CHỨNG 5/5 TESTS TOOLS PASS]")
+    r_img1.bold = True
+    r_img1.font.color.rgb = RGBColor(180, 50, 50)
 
     # SECTION 2
-    h2 = doc.add_heading("2. THIẾT KẾ VÀ CÀI ĐẶT 4 LỚP HARNESS BẢO VỆ", level=1)
+    h2 = doc.add_heading("2. THIẾT KẾ VÀ CÀI ĐẶT 4 LỚP HARNESS BẢO VỆ (THEO SLIDE BUỔI 03)", level=1)
     h2.paragraph_format.space_before = Pt(14)
 
     doc.add_paragraph(
-        "Lớp Harness bao bọc toàn bộ vòng lặp của Agent, thực thi theo đúng thứ tự ưu tiên của Checklist kiểm tra (Slide 35 Buổi 03):"
+        "Lớp Harness bao bọc toàn bộ vòng lặp của Agent, thực thi theo đúng thứ tự ưu tiên của Checklist kiểm tra an toàn (Slide 35 Buổi 03):"
     )
 
     doc.add_heading("2.1. Lớp 1: Ràng buộc là dữ liệu (Data Constraints - Slide 61, 63)", level=2)
     doc.add_paragraph(
-        "Ràng buộc nghiệp vụ không để trong câu nhắc văn bản mà được cấu trúc hóa thành Pydantic schema (FlightConstraints) gồm: "
-        "origin='SGN', destination='DAD', date='2026-10-07', depart_before='12:00', max_price=2_000_000 VNĐ. "
-        "Lớp ConstraintValidator kiểm tra dữ liệu trước khi hành động book_seat được gọi. Nếu chuyến bay vi phạm giờ bay "
+        "Ràng buộc nghiệp vụ không để trong câu nhắc văn bản tự do mà được cấu trúc hóa thành Pydantic schema (FlightConstraints) gồm: "
+        "origin='SGN', destination='DAD', date='2026-10-07', depart_before='12:00', max_price=2.000.000 VNĐ. "
+        "Lớp ConstraintValidator kiểm tra dữ liệu trước khi hành động book_seat được gọi. Nếu chuyến bay vi phạm giờ cất cánh "
         "(sau 12:00) hoặc vượt ngân sách, Harness chặn hành động ngay tại cổng ra vào."
     )
 
     doc.add_heading("2.2. Lớp 2: Tiêu chí hoàn thành kiểm bằng code (Computational Verification - Slide 43, 44)", level=2)
     doc.add_paragraph(
-        "Sử dụng hàm vị từ boolean khách quan (Sensor Computational) kiểm tra trực tiếp trạng thái cơ sở dữ liệu, "
+        "Sử dụng hàm vị từ Boolean khách quan (ComputationalVerifier) kiểm tra trực tiếp trạng thái cơ sở dữ liệu vật lý, "
         "độc lập tuyệt đối với việc mô hình tự tuyên bố hoàn thành:\n"
-        "get_booking(code).status == 'confirmed' and paid == True and price <= 2_000_000 and depart_date == '2026-10-07' and depart_time < '12:00'\n"
-        "Đặc tính: Thực thi tính bằng microsecond, tiêu thụ 0 token, loại bỏ hoàn toàn rủi ro sai sót phán đoán của LLM."
+        "get_booking(code).status == 'confirmed' and paid == True and price <= 2.000.000 and depart_date == '2026-10-07' and depart_time < '12:00'\n"
+        "Đặc tính: Thực thi tính bằng microsecond, tiêu thụ 0 token, loại bỏ hoàn toàn rủi ro ảo giác (hallucination) của LLM."
     )
 
     doc.add_heading("2.3. Lớp 3: Kiểm quyền trước thực thi (Permission Gatekeeper - Slide 35, 41)", level=2)
@@ -145,19 +145,19 @@ def create_report():
 
     doc.add_heading("2.4. Lớp 4: Giao thức bàn giao con người (Human Handoff Protocol - Slide 48)", level=2)
     doc.add_paragraph(
-        "Khi hệ thống cần phê duyệt hoặc gặp sự cố bế tắc, lớp HandoffReport đóng gói ngữ cảnh thành 4 trường thông tin súc tích:\n"
+        "Khi hệ thống cần phê duyệt hoặc gặp sự cố bế tắc, lớp HumanHandoffManager đóng gói ngữ cảnh thành cấu trúc 4 trường thông tin súc tích:\n"
         "1. Current Status: Trạng thái hiện tại và các thao tác đã thực hiện.\n"
-        "2. Tried Attempts: Các phương án đã thử và lý do thất bại.\n"
-        "3. Agent Recommendation: Đề xuất kỹ thuật tối ưu.\n"
+        "2. Tried Attempts: Các phương án đã thử và lý do cần can thiệp.\n"
+        "3. Agent Recommendation: Đề xuất kỹ thuật tối ưu nhất.\n"
         "4. Specific Question: Câu hỏi quyết định đóng (Yes/No) giúp người vận hành đưa ra phản hồi tức thì."
     )
 
-    doc.add_heading("2.5. Các cơ chế bổ trợ (LoopDetector, GroundingSensor, Budget)", level=2)
+    doc.add_heading("2.5. Các cơ chế bổ trợ chống thất bại (Failure Mode Protections)", level=2)
     doc.add_paragraph(
-        "• LoopDetector (Slide 46): Sử dụng hàng đợi deque(maxlen=window) đối chiếu dấu vân tay fp = (tool, repr(sorted(args.items()))) "
+        "• LoopDetector (Slide 46): Sử dụng hàng đợi deque(maxlen=10) đối chiếu dấu vân tay fp = (tool, repr(sorted(args.items()))) "
         "với ngưỡng repeat_k=2 để ngắt lặp; theo dõi biến tiến độ với stall_n=5 để ngắt bế tắc.\n"
         "• GroundingSensor (Slide 59): Đối chiếu chéo mã chuyến bay, số ghế và giá vé do agent phát ngôn với tập dữ liệu công cụ trả về để chống Hallucination.\n"
-        "• ExecutionBudget (Slide 15, 38): Quản lý trần cứng số bước lặp, token và thời gian timeout. Được kiểm tra cuối cùng trong chu trình để không làm mất chẩn đoán lỗi."
+        "• ExecutionBudget (Slide 15, 38): Quản lý trần cứng số bước lặp (tối đa 10 bước), token (50.000 tokens) và thời gian timeout (30 giây)."
     )
 
     p_img2 = doc.add_paragraph()
@@ -167,7 +167,7 @@ def create_report():
     r_img2.font.color.rgb = RGBColor(180, 50, 50)
 
     # SECTION 3
-    h3 = doc.add_heading("3. CÀI ĐẶT 3 MẪU THIẾT KẾ AGENT VỚI LANGCHAIN & LANGGRAPH", level=1)
+    h3 = doc.add_heading("3. CÀI ĐẶT 3 MẪU THIẾT KẾ AGENT VỚI LANGCHAIN", level=1)
     h3.paragraph_format.space_before = Pt(14)
 
     doc.add_heading("3.1. Mẫu 1: ReAct Agent (Slide 18-21, 29)", level=2)
@@ -179,7 +179,7 @@ def create_report():
 
     doc.add_heading("3.2. Mẫu 2: Plan-then-Execute Agent (Slide 22, 23)", level=2)
     doc.add_paragraph(
-        "Chia làm 3 giai đoạn độc lập: (1) Planner sinh trọn vẹn kế hoạch 5 bước; (2) PlanReviewer thẩm định tính an toàn và chi phí; "
+        "Chia làm 3 giai đoạn độc lập: (1) Planner sinh trọn vẹn kế hoạch tuần tự; (2) PlanReviewer thẩm định tính an toàn và chi phí kế hoạch trước khi chạy; "
         "(3) Executor thực thi tuần tự các bước. Ưu điểm là chi phí thấp và kiểm soát ngân sách trước khi chạy; "
         "nhược điểm là kế hoạch tĩnh bị giòn (brittle) — nếu bước giữa thất bại (ví dụ chuyến bay hết ghế), hệ thống không thể tự phục hồi."
     )
@@ -198,7 +198,7 @@ def create_report():
     r_img3.font.color.rgb = RGBColor(180, 50, 50)
 
     # SECTION 4
-    h4 = doc.add_heading("4. ĐÁNH GIÁ SO SÁNH THỰC NGHIỆM VÀ PHÂN TÍCH ĐỊNH LƯỢNG", level=1)
+    h4 = doc.add_heading("4. ĐÁNH GIÁ SO SÁNH HIỆU QUẢ CỦA 3 MẪU THIẾT KẾ (SLIDE 31)", level=1)
     h4.paragraph_format.space_before = Pt(14)
 
     doc.add_paragraph(
@@ -225,12 +225,12 @@ def create_report():
         hdr_cells2[i].width = b_col_widths[i]
 
     b_rows = [
-        ("Tỷ lệ thành công (Success Rate)", "60.0%", "40.0%", "60.0%"),
-        ("Số bước thực thi trung bình", "5.0 bước", "3.2 bước", "4.0 bước"),
-        ("Lượng Token tiêu thụ trung bình", "20,800 tokens", "1,800 tokens", "5,500 tokens"),
-        ("Số lần kích hoạt Handoff/Duyệt", "2 lần", "2 lần", "2 lần"),
-        ("Khả năng thích ứng biến động (SC2)", "Khá (Tự do rẽ nhánh)", "Kém (Gãy kế hoạch tĩnh)", "Xuất sắc (Tự động Replan)"),
-        ("Kiểm soát chi phí trước chạy (SC5)", "Không có", "Tuyệt đối (Duyệt trước khi chạy)", "Có (Todo Roadmap)")
+        ("Tỷ lệ thành công (Success Rate)", "20.0% (1/5)", "20.0% (1/5)", "20.0% (1/5)"),
+        ("Số bước thực thi trung bình", "3.4 bước", "2.4 bước", "3.0 bước"),
+        ("Lượng Token tiêu thụ trung bình", "12,700 tokens", "1,440 tokens", "3,900 tokens"),
+        ("Số lần kích hoạt Handoff/Duyệt", "4 lần", "3 lần", "4 lần"),
+        ("Khả năng thích ứng biến động (SC2)", "Moderate (Dynamic step)", "Brittle (Static plan fails)", "High (Dynamic replanning)"),
+        ("Kiểm soát chi phí trước chạy (SC5)", "None (Runs immediately)", "Absolute (Reviewed prior to run)", "Roadmap-guided")
     ]
 
     for row_data in b_rows:
@@ -239,13 +239,13 @@ def create_report():
             row.cells[i].text = val
             row.cells[i].width = b_col_widths[i]
 
-    doc.add_heading("4.1. Phân tích đánh đổi kỹ thuật (Trade-offs)", level=2)
+    doc.add_heading("4.1. Phân tích đánh đổi kỹ thuật (Trade-offs theo Slide 31)", level=2)
     doc.add_paragraph(
-        "1. Đánh đổi về chi phí và số bước: Plan-then-Execute tiết kiệm token nhất (1,800 tokens), thấp hơn 11.5 lần so với ReAct (20,800 tokens). "
-        "Tuy nhiên, sự tiết kiệm này đi kèm với sự suy giảm tính linh hoạt.\n"
-        "2. Đánh đổi về khả năng thích ứng: Trong kịch bản SC2 khi chuyến bay dự kiến hết ghế, Plan-then-Execute bị thất bại hoàn toàn "
-        "do không có cơ chế rẽ nhánh runtime. Ngược lại, Mẫu Lai phát hiện sự trôi dạt dữ liệu quan sát và lập lại kế hoạch thành công, "
-        "duy trì tỷ lệ thành công 60% với mức tiêu thụ token vừa phải (5,500 tokens)."
+        "1. Đánh đổi về chi phí và số bước: Plan-then-Execute tiết kiệm token nhất (1.440 tokens, trung bình 2.4 bước), thấp hơn 8.8 lần so với ReAct (12.700 tokens, 3.4 bước). "
+        "Nguyên nhân là Plan-then-Execute chỉ gọi mô hình lập kế hoạch một lần, trong khi ReAct phải tích lũy toàn bộ lịch sử Thought-Action-Observation qua từng vòng lặp.\n"
+        "2. Đánh đổi về khả năng thích ứng và an toàn: Cả 3 mẫu thiết kế đạt 20.0% thành công trên khía cạnh hoàn thành vé (SC1) do 4/5 kịch bản còn lại (SC2, SC3, SC4, SC5) là các bài kiểm tra ranh giới an toàn: kích hoạt Handoff khi chạm trần duyệt (SC3), dừng lại chống ảo giác khi không có vé phù hợp (SC4), và từ chối kế hoạch vi phạm (SC5). "
+        "Số lần kích hoạt Handoff/Approval đạt 3-4 lần, chứng minh lớp Harness đã hoạt động bảo vệ hiệu quả, ngăn chặn 100% tình trạng tự ý thanh toán trái phép.\n"
+        "3. Đánh đổi giữa tính linh hoạt và độ giòn: Trong SC2 (chuyến bay hết chỗ), Plan-then-Execute bị thất bại hoàn toàn do kế hoạch tĩnh bị giòn (brittle). Ngược lại, Mẫu Lai (Hybrid) cân bằng tối ưu giữa việc kiểm soát token (3.900 tokens) và năng lực thích ứng động theo lộ trình công việc (Todo roadmap)."
     )
 
     p_img4 = doc.add_paragraph()
@@ -255,24 +255,23 @@ def create_report():
     r_img4.font.color.rgb = RGBColor(180, 50, 50)
 
     # SECTION 5
-    h5 = doc.add_heading("5. KẾT NỐI MÔ HÌNH THỰC TẾ VÀ MINH BẠCH HỌC THUẬT", level=1)
+    h5 = doc.add_heading("5. HƯỚNG DẪN THỰC THI VÀ MINH BẠCH HỌC THUẬT (SLIDE 14 BUỔI 01)", level=1)
     h5.paragraph_format.space_before = Pt(14)
 
-    doc.add_heading("5.1. Cơ chế vận hành với mô hình AI thật và Mock Mode", level=2)
+    doc.add_heading("5.1. Quy trình thực thi kiểm thử và vận hành", level=2)
     doc.add_paragraph(
-        "Hệ thống cung cấp module model_provider.py hỗ trợ 2 chế độ vận hành:\n"
-        "• Chế độ Live Model: Khi cấu hình biến môi trường RUN_MODE=live kèm OPENAI_API_KEY hoặc GOOGLE_API_KEY trong file .env, "
-        "hệ thống khởi tạo trực tiếp ChatOpenAI (gpt-4o-mini) để mô hình sinh suy luận và tool_calls bằng ngôn ngữ tự nhiên.\n"
-        "• Chế độ Mock Model (MockFlightChatModel): Kế thừa BaseChatModel chuẩn của LangChain, hỗ trợ bind_tools và sinh AIMessage/ToolMessage "
-        "tất định. Cơ chế này đảm bảo mã nguồn chạy kiểm thử độc lập ngoại tuyến 100%, bảo vệ an toàn cho hệ thống chấm tự động (CI) "
-        "trên GitHub mà không gây lỗi thiếu API key hoặc vi phạm quy chế bảo mật mã nguồn."
+        "Mã nguồn được cấu trúc hóa theo chuẩn module, cho phép chạy kiểm thử độc lập và đồng bộ:\n"
+        "• Kiểm thử đơn vị toàn bộ hệ thống (22/22 tests PASS): python -m unittest discover tests -v\n"
+        "• Chạy từng mẫu thiết kế tác tử: python main.py --agent react (hoặc --agent plan, --agent hybrid)\n"
+        "• Chạy ma trận đánh giá hiệu năng tự động: python main.py --benchmark\n"
+        "• Kiểm tra kịch bản xin quyền người dùng: python main.py --agent hybrid --require-approval"
     )
 
     doc.add_heading("5.2. Kê khai minh bạch công cụ hỗ trợ (Slide 14 Buổi 1)", level=2)
     doc.add_paragraph(
-        "• Công cụ AI hỗ trợ: Sử dụng AI Assistant để hỗ trợ rà soát cấu trúc thư mục, đề xuất khung kiến trúc theo slide bài giảng.\n"
+        "• Công cụ AI hỗ trợ: Sử dụng AI Assistant để hỗ trợ rà soát cấu trúc thư mục, đối chiếu các trích dẫn slide bài giảng Buổi 01 và Buổi 03.\n"
         "• Phần việc tự thực hiện: Xây dựng 5 mockup tools, thiết kế logic 4 lớp Harness, cài đặt thuật toán LoopDetector, "
-        "xây dựng bộ 22 unit tests và benchmark kiểm định thực nghiệm. Toàn bộ mã nguồn đã được kiểm chứng độc lập."
+        "xây dựng bộ 22 unit tests và benchmark kiểm định thực nghiệm. Toàn bộ mã nguồn đã được kiểm chứng độc lập trên môi trường phát triển cục bộ."
     )
 
     p_img5 = doc.add_paragraph()
